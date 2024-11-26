@@ -107,7 +107,7 @@ class CLIPLoss(torch.nn.Module):
 
         return image_features
 
-    def compute_text_direction(self, source_class: str, target_class: str) -> torch.Tensor:
+    def compute_text_direction(self, source_class: str, target_class: torch.Tensor) -> torch.Tensor:
         source_features = self.get_text_features(source_class)
         target_features = self.get_image_features(target_class)
 
@@ -167,7 +167,7 @@ class CLIPLoss(torch.nn.Module):
     def compose_text_with_templates(self, text: str, templates=imagenet_templates) -> list:
         return [template.format(text) for template in templates]
             
-    def clip_directional_loss(self, src_img: torch.Tensor, source_class: str, target_img: torch.Tensor, target_class: str) -> torch.Tensor:
+    def clip_directional_loss(self, src_img: torch.Tensor, source_class: str, target_img: torch.Tensor, target_class: torch.Tensor) -> torch.Tensor:
 
         if self.target_direction is None:
             self.target_direction = self.compute_text_direction(source_class, target_class)
