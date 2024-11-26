@@ -103,7 +103,9 @@ class CLIPLoss(torch.nn.Module):
         image_features = self.encode_images(img)
         
         if norm:
-            image_features /= image_features.clone().norm(dim=-1, keepdim=True)
+            # image_features /= image_features.clone().norm(dim=-1, keepdim=True)
+            image_features = image_features / image_features.clone().norm(dim=-1, keepdim=True)
+
 
         return image_features
 
@@ -112,7 +114,8 @@ class CLIPLoss(torch.nn.Module):
         target_features = self.get_image_features(target_class)
 
         text_direction = (target_features - source_features).mean(axis=0, keepdim=True)
-        text_direction /= text_direction.norm(dim=-1, keepdim=True)
+        text_direction = text_direction / text_direction.norm(dim=-1, keepdim=True)
+        # text_direction /= text_direction.norm(dim=-1, keepdim=True)
 
         return text_direction
 
@@ -176,7 +179,9 @@ class CLIPLoss(torch.nn.Module):
         target_encoding = self.get_image_features(target_img)
 
         edit_direction = (target_encoding - src_encoding)
-        edit_direction /= (edit_direction.clone().norm(dim=-1, keepdim=True) + 1e-7)
+        # edit_direction /= (edit_direction.clone().norm(dim=-1, keepdim=True) + 1e-7)
+        edit_direction = edit_direction / (edit_direction.clone().norm(dim=-1, keepdim=True) + 1e-7)
+
         return self.direction_loss(edit_direction, self.target_direction).mean()
 
     def global_clip_loss(self, img: torch.Tensor, text) -> torch.Tensor:
@@ -279,7 +284,7 @@ class CLIPLoss(torch.nn.Module):
         return self.texture_loss(src_features, target_features)
 
     def forward(self, src_img: torch.Tensor, source_class: str, target_img: torch.Tensor, target_image_ref: torch.Tensor, texture_image: torch.Tensor = None):
-        clip_loss = 0.0
+        # clip_loss = 0.0
 
         # if self.lambda_global:
         #     clip_loss += self.lambda_global * self.global_clip_loss(target_img, target_image_ref)
@@ -287,8 +292,10 @@ class CLIPLoss(torch.nn.Module):
         # if self.lambda_patch:
         #     clip_loss += self.lambda_patch * self.patch_directional_loss(src_img, source_class, target_img, target_image_ref)
 
-        if self.lambda_direction:
-            clip_loss += self.lambda_direction * self.clip_directional_loss(src_img, source_class, target_img, target_image_ref)
+        # if self.lambda_direction:
+        clip_loss = self.clip_directional_loss(src_img, source_class, target_img, target_image_ref)
+
+            # clip_loss += self.lambda_direction * self.clip_directional_loss(src_img, source_class, target_img, target_image_ref)
 
         # if self.lambda_manifold:
         #     clip_loss += self.lambda_manifold * self.clip_angle_loss(src_img, source_class, target_img, target_image_ref)

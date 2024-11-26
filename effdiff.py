@@ -294,7 +294,9 @@ class EffDiff(object):
             loss_clip = -torch.log(loss_clip)
             loss_id = 0
             loss_l1 = nn.L1Loss()(x0.to(self.device), x)
-            loss = self.args.clip_loss_w * loss_clip + self.args.id_loss_w * loss_id + self.args.l1_loss_w * loss_l1
+            # loss = self.args.clip_loss_w * loss_clip + self.args.id_loss_w * loss_id + self.args.l1_loss_w * loss_l1
+            loss = self.args.clip_loss_w * loss_clip + self.args.l1_loss_w * loss_l1
+
             loss.backward()
 
             self.optim_ft.step()
