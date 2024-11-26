@@ -179,11 +179,14 @@ class CLIPLoss(torch.nn.Module):
         edit_direction /= (edit_direction.clone().norm(dim=-1, keepdim=True) + 1e-7)
         return self.direction_loss(edit_direction, self.target_direction).mean()
 
-    def global_clip_loss(self, img: torch.Tensor, ref_image) -> torch.Tensor:
-        ref_image_processed  = self.preprocess(ref_image)
+    def global_clip_loss(self, img: torch.Tensor, text) -> torch.Tensor:
+        if not isinstance(text, list):
+            text = [text]
+            
+        tokens = clip.tokenize(text).to(self.device)
         image  = self.preprocess(img)
 
-        logits_per_image, _ = self.model(image, ref_image_processed)
+        logits_per_image, _ = self.model(image, tokens)
 
         return (1. - logits_per_image / 100).mean()
 
@@ -275,17 +278,17 @@ class CLIPLoss(torch.nn.Module):
 
         return self.texture_loss(src_features, target_features)
 
-    def forward(self, src_img: torch.Tensor, source_class: str, target_img: torch.Tensor, target_image_ref: str, texture_image: torch.Tensor = None):
+    def forward(self, src_img: torch.Tensor, source_class: str, target_img: torch.Tensor, target_image_ref: torch.Tensor, texture_image: torch.Tensor = None):
         clip_loss = 0.0
 
-        if self.lambda_global:
-            clip_loss += self.lambda_global * self.global_clip_loss(target_img, target_image_ref)
+        # if self.lambda_global:
+        #     clip_loss += self.lambda_global * self.global_clip_loss(target_img, target_image_ref)
 
         # if self.lambda_patch:
         #     clip_loss += self.lambda_patch * self.patch_directional_loss(src_img, source_class, target_img, target_image_ref)
 
-        # if self.lambda_direction:
-        #     clip_loss += self.lambda_direction * self.clip_directional_loss(src_img, source_class, target_img, target_image_ref)
+        if self.lambda_direction:
+            clip_loss += self.lambda_direction * self.clip_directional_loss(src_img, source_class, target_img, target_image_ref)
 
         # if self.lambda_manifold:
         #     clip_loss += self.lambda_manifold * self.clip_angle_loss(src_img, source_class, target_img, target_image_ref)
