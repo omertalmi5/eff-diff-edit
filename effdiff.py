@@ -77,7 +77,7 @@ class EffDiff(object):
             self.trg_image_paths = self.args.trg_txts
         else:
             self.src_txts = SRC_TRG_TXT_DIC[self.args.edit_attr][0]
-            self.trg_image_paths = ["joker"] #SRC_TRG_TXT_DIC[self.args.edit_attr][1]
+            self.trg_image_paths = ["joker.jpg"] #SRC_TRG_TXT_DIC[self.args.edit_attr][1]
             print("____________________________________________________")
             print(self.trg_image_paths)
 
