@@ -74,10 +74,10 @@ class EffDiff(object):
         # Other stuff
         if self.args.edit_attr is None:
             self.src_txts = self.args.src_txts
-            self.trg_txts = self.args.trg_txts
+            self.trg_image_paths = self.args.trg_txts
         else:
             self.src_txts = SRC_TRG_TXT_DIC[self.args.edit_attr][0]
-            self.trg_txts = SRC_TRG_TXT_DIC[self.args.edit_attr][1]
+            self.trg_image_paths = SRC_TRG_TXT_DIC[self.args.edit_attr][1]
 
         self.is_first = True
         self.is_first_train = True
@@ -238,15 +238,15 @@ class EffDiff(object):
     def clip_finetune(self):
         print(self.args.exp)
         print(f'   {self.src_txts}')
-        print(f'-> {self.trg_txts}')
+        print(f'-> {self.trg_image_paths}')
 
         self.precompute_latents()
 
         print("Start finetuning")
         print(f"Sampling type: {self.args.sample_type.upper()} with eta {self.args.eta}")
 
-        for self.src_txt, self.trg_txt in zip(self.src_txts, self.trg_txts):
-            print(f"CHANGE {self.src_txt} TO {self.trg_txt}")
+        for self.src_txt, self.trg_image_path in zip(self.src_txts, self.trg_image_paths):
+            print(f"CHANGE {self.src_txt} TO {self.trg_image_path}")
 
             self.clip_loss_func.target_direction = None
 
@@ -283,7 +283,7 @@ class EffDiff(object):
 
             # Losses
             x_source = x0.to(self.device)
-            loss_clip = (2 - self.clip_loss_func(x_source, self.src_txt, x, self.trg_txt)) / 2
+            loss_clip = (2 - self.clip_loss_func(x_source, self.src_txt, x, self.trg_image_path)) / 2
             loss_clip = -torch.log(loss_clip)
             loss_id = 0
             loss_l1 = nn.L1Loss()(x0.to(self.device), x)
@@ -307,7 +307,7 @@ class EffDiff(object):
                                          eta=self.args.eta,
                                          is_one_step=False)
                 self.save(x,
-                          f'train_{self.step}_2_clip_{self.trg_txt.replace(" ", "_")}_{self.it_out}_ngen{self.args.n_train_step}.png')
+                          f'train_{self.step}_2_clip_{self.trg_image_path.replace(" ", "_")}_{self.it_out}_ngen{self.args.n_train_step}.png')
 
                 if self.is_first_train:
                     self.save(x0, f'{self.mode}_{self.step}_0_orig.png')
@@ -338,7 +338,7 @@ class EffDiff(object):
 
             print(f"Eval {self.step}-{self.it_out}")
             self.save(x,
-                      f'test_{self.step}_2_clip_{self.trg_txt.replace(" ", "_")}_{self.it_out}_ngen{self.args.n_test_step}.png')
+                      f'test_{self.step}_2_clip_{self.trg_image_path.replace(" ", "_")}_{self.it_out}_ngen{self.args.n_test_step}.png')
 
             if self.step == self.args.n_test_img - 1:
                 break
