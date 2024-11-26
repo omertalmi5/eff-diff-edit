@@ -283,6 +283,9 @@ class EffDiff(object):
 
             # Losses
             x_source = x0.to(self.device)
+            train_transform = tfs.Compose([tfs.ToTensor(),
+                                           tfs.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5),
+                                                          inplace=True)])
             img_ref = train_transform(self._open_image(f"imgs_for_test/{self.trg_image_path}"))
             img_ref_vec = img_ref.to(self.config.device).unsqueeze(0)
             loss_clip = (2 - self.clip_loss_func(x_source, self.src_txt, x, img_ref_vec)) / 2
