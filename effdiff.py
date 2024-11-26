@@ -78,6 +78,8 @@ class EffDiff(object):
         else:
             self.src_txts = SRC_TRG_TXT_DIC[self.args.edit_attr][0]
             self.trg_image_paths = SRC_TRG_TXT_DIC[self.args.edit_attr][1]
+            print("____________________________________________________")
+            print(self.trg_image_paths)
 
         self.is_first = True
         self.is_first_train = True
