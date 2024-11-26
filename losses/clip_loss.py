@@ -111,7 +111,7 @@ class CLIPLoss(torch.nn.Module):
 
     def compute_text_direction(self, source_class: str, target_class: torch.Tensor) -> torch.Tensor:
         source_features = self.get_text_features(source_class)
-        target_features = self.get_image_features(target_class)
+        target_features = self.get_image_features(target_class).detach() 
 
         text_direction = (target_features - source_features).mean(axis=0, keepdim=True)
         text_direction = text_direction / text_direction.norm(dim=-1, keepdim=True)
