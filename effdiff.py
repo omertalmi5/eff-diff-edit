@@ -283,7 +283,9 @@ class EffDiff(object):
 
             # Losses
             x_source = x0.to(self.device)
-            loss_clip = (2 - self.clip_loss_func(x_source, self.src_txt, x, self.trg_image_path)) / 2
+            img_ref = train_transform(self._open_image(f"imgs_for_test/{self.trg_image_path}"))
+            img_ref_vec = img_ref.to(self.config.device).unsqueeze(0)
+            loss_clip = (2 - self.clip_loss_func(x_source, self.src_txt, x, img_ref_vec)) / 2
             loss_clip = -torch.log(loss_clip)
             loss_id = 0
             loss_l1 = nn.L1Loss()(x0.to(self.device), x)
